@@ -17,7 +17,7 @@ class HeatmapHabits extends StatelessWidget {
         endDate: DateTime.now().add(Duration(days: 0)),
         datasets: dataset,
         colorMode: ColorMode.color,
-        defaultColor: Colors.grey[200],
+        defaultColor: Colors.grey[500],
         textColor: Colors.white,
         showColorTip: false,
         showText: true,

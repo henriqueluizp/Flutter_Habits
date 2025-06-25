@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:habits/components/floating_button.dart';
 import 'package:habits/components/habit_tile.dart';
 import 'package:habits/components/habit_element.dart';
 import 'package:habits/components/heatmap_habits.dart';
@@ -95,7 +94,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300],
+      backgroundColor: Color.fromRGBO(18, 18, 18, 1),
       body: ListView(
         children: [
           HeatmapHabits(dataset: db.heatMapDataSet, startDate: _myBox.get('START_DATE')),
@@ -116,7 +115,14 @@ class _HomePageState extends State<HomePage> {
               }),
         ],
       ),
-      floatingActionButton: FloatingButton(onPressed: createNewHabit),
+      floatingActionButton: FloatingActionButton(
+        onPressed: createNewHabit,
+        backgroundColor: const Color.fromARGB(255, 2, 179, 8),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: const Icon(Icons.add, color: Colors.white),
+      ),
     );
   }
 }
