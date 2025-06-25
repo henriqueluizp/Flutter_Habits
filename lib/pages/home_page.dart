@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:habits/components/floating_button.dart';
 import 'package:habits/components/habit_tile.dart';
-import 'package:habits/components/new_habit.dart';
+import 'package:habits/components/habit_element.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -22,31 +22,57 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  final _newHabitController = TextEditingController();
+  final _habitController = TextEditingController();
 
   void createNewHabit() {
     showDialog(
         context: context,
         builder: (context) {
-          return NewHabit(
-            controller: _newHabitController,
+          return HabitElement(
+            controller: _habitController,
             onSave: saveNewHabit,
-            onCancel: cancelNewHabit,
+            onCancel: cancelHabit,
           );
         });
   }
 
   void saveNewHabit() {
     setState(() {
-      entityList.add([_newHabitController.text, false]);
+      entityList.add([_habitController.text, false]);
     });
-    _newHabitController.clear();
+    _habitController.clear();
     Navigator.of(context).pop();
   }
 
-  void cancelNewHabit() {
-    _newHabitController.clear();
+  void cancelHabit() {
+    _habitController.clear();
     Navigator.of(context).pop();
+  }
+
+  void habitSetting(int index) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return HabitElement(
+            controller: _habitController,
+            onSave: () => editHabit(index),
+            onCancel: cancelHabit,
+          );
+        });
+  }
+
+  void editHabit(int index) {
+    setState(() {
+      entityList[index][0] = _habitController.text;
+    });
+    _habitController.clear();
+    Navigator.of(context).pop();
+  }
+
+  void habitDelete(int index){
+    setState(() {
+      entityList.removeAt(index);
+    });
   }
 
   @override
@@ -61,9 +87,13 @@ class _HomePageState extends State<HomePage> {
                 isCompleted: entityList[index][1],
                 onChange: (value) {
                   checkBoxToggle(value, index);
-                });
+                },
+                settingClick: (context) => habitSetting(index),
+              deleteClick: (context) => habitDelete(index),
+            );
           }),
       floatingActionButton: FloatingButton(onPressed: createNewHabit),
     );
   }
 }
+

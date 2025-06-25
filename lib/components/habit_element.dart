@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class NewHabit extends StatelessWidget {
-  const NewHabit({
+class HabitElement extends StatelessWidget {
+  const HabitElement({
     super.key,
     this.controller,
     required this.onSave,
@@ -18,6 +18,7 @@ class NewHabit extends StatelessWidget {
       backgroundColor: Colors.grey[900],
       content: TextField(
         controller: controller,
+        decoration: const InputDecoration(hintText: 'Hábito', hintStyle: TextStyle(color: Colors.white)),
         style: const TextStyle(color: Colors.white),
       ),
       actions: [
