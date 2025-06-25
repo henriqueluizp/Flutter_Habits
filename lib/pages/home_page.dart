@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:habits/components/floating_button.dart';
 import 'package:habits/components/habit_tile.dart';
 import 'package:habits/components/habit_element.dart';
+import 'package:habits/components/heatmap_habits.dart';
 import 'package:habits/data/habitdb.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
@@ -20,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     if (_myBox.get("CURRENT_HABIT_LIST") == null) {
       db.createDefaultDB();
-  } else {
+    } else {
       db.loadDB();
     }
 
@@ -95,19 +96,26 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[300],
-      body: ListView.builder(
-          itemCount: db.todaysHabitsList.length,
-          itemBuilder: (context, index) {
-            return HabitTile(
-              name: db.todaysHabitsList[index][0],
-              isCompleted: db.todaysHabitsList[index][1],
-              onChange: (value) {
-                checkBoxToggle(value, index);
-              },
-              settingClick: (context) => habitSetting(index),
-              deleteClick: (context) => habitDelete(index),
-            );
-          }),
+      body: ListView(
+        children: [
+          HeatmapHabits(dataset: db.heatMapDataSet, startDate: _myBox.get('START_DATE')),
+          ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: db.todaysHabitsList.length,
+              itemBuilder: (context, index) {
+                return HabitTile(
+                  name: db.todaysHabitsList[index][0],
+                  isCompleted: db.todaysHabitsList[index][1],
+                  onChange: (value) {
+                    checkBoxToggle(value, index);
+                  },
+                  settingClick: (context) => habitSetting(index),
+                  deleteClick: (context) => habitDelete(index),
+                );
+              }),
+        ],
+      ),
       floatingActionButton: FloatingButton(onPressed: createNewHabit),
     );
   }
