@@ -24,10 +24,6 @@ Flutter app to manage and track daily habits.
    flutter run
    ```
 
-## License
-
-MIT License. See the LICENSE file for details.
-
 ---
 
 Aplicativo Flutter para gerenciar e acompanhar hábitos diários.
@@ -53,3 +49,9 @@ Aplicativo Flutter para gerenciar e acompanhar hábitos diários.
    ```bash
    flutter run
    ```
+
+----
+
+## License
+
+MIT License. See the LICENSE file for details.
