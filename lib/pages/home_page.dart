@@ -16,16 +16,22 @@ class _HomePageState extends State<HomePage> {
   HabitDB db = HabitDB();
   final _myBox = Hive.box("HabitDB");
 
+  late DateTime _selectedCalendarDate;
+
+  final _newHabitNameController = TextEditingController();
+
   @override
   void initState() {
+    super.initState();
+
+    _selectedCalendarDate = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+
     if (_myBox.get("CURRENT_HABIT_LIST") == null) {
       db.createDefaultDB();
-    } else {
-      db.loadDB();
     }
 
-    db.updateDB();
-    super.initState();
+    db.selectedDate = _selectedCalendarDate;
+    db.loadDB(_selectedCalendarDate);
   }
 
   void checkBoxToggle(bool? value, int index) {
@@ -35,93 +41,123 @@ class _HomePageState extends State<HomePage> {
     db.updateDB();
   }
 
-  final _habitController = TextEditingController();
-
   void createNewHabit() {
     showDialog(
-        context: context,
-        builder: (context) {
-          return HabitElement(
-            controller: _habitController,
-            onSave: saveNewHabit,
-            onCancel: cancelHabit,
-          );
-        });
-  }
-
-  void saveNewHabit() {
-    setState(() {
-      db.todaysHabitsList.add([_habitController.text, false]);
-    });
-    db.updateDB();
-    _habitController.clear();
-    Navigator.of(context).pop();
-  }
-
-  void cancelHabit() {
-    _habitController.clear();
-    Navigator.of(context).pop();
+      context: context,
+      builder: (context) {
+        return HabitElement(
+          controller: _newHabitNameController,
+          onSave: () {
+            db.addHabit(_newHabitNameController.text);
+            _newHabitNameController.clear();
+            Navigator.pop(context);
+            setState(() {
+              db.loadDB(_selectedCalendarDate);
+            });
+          },
+          onCancel: () {
+            _newHabitNameController.clear();
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
   }
 
   void habitSetting(int index) {
     showDialog(
-        context: context,
-        builder: (context) {
-          return HabitElement(
-            controller: _habitController,
-            onSave: () => editHabit(index),
-            onCancel: cancelHabit,
-          );
-        });
-  }
-
-  void editHabit(int index) {
-    setState(() {
-      db.todaysHabitsList[index][0] = _habitController.text;
-    });
-    db.updateDB();
-    _habitController.clear();
-    Navigator.of(context).pop();
+      context: context,
+      builder: (context) {
+        _newHabitNameController.text = db.todaysHabitsList[index][0];
+        return HabitElement(
+          controller: _newHabitNameController,
+          onSave: () {
+            db.editHabit(index, _newHabitNameController.text);
+            _newHabitNameController.clear();
+            Navigator.pop(context);
+            setState(() {});
+          },
+          onCancel: () {
+            _newHabitNameController.clear();
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
   }
 
   void habitDelete(int index) {
+    db.deleteHabit(index);
     setState(() {
-      db.todaysHabitsList.removeAt(index);
+      db.loadDB(_selectedCalendarDate);
     });
-    db.updateDB();
+  }
+
+  void onCalendarDateSelected(DateTime date) {
+    setState(() {
+      _selectedCalendarDate = date;
+      db.loadDB(_selectedCalendarDate);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromRGBO(18, 18, 18, 1),
-      body: ListView(
-        children: [
-          HeatmapHabits(dataset: db.heatMapDataSet, startDate: _myBox.get('START_DATE')),
-          ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: db.todaysHabitsList.length,
-              itemBuilder: (context, index) {
-                return HabitTile(
-                  name: db.todaysHabitsList[index][0],
-                  isCompleted: db.todaysHabitsList[index][1],
-                  onChange: (value) {
-                    checkBoxToggle(value, index);
-                  },
-                  settingClick: (context) => habitSetting(index),
-                  deleteClick: (context) => habitDelete(index),
-                );
-              }),
-        ],
+    DateTime todayNormalized = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
+    DateTime selectedDateNormalized =
+        DateTime(_selectedCalendarDate.year, _selectedCalendarDate.month, _selectedCalendarDate.day);
+
+    bool isFutureOrTodaySelected =
+        selectedDateNormalized.isAfter(todayNormalized) || selectedDateNormalized.isAtSameMomentAs(todayNormalized);
+
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textTheme: const TextTheme(),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: createNewHabit,
-        backgroundColor: const Color.fromARGB(255, 2, 179, 8),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(100),
+      child: Scaffold(
+        backgroundColor: const Color.fromRGBO(18, 18, 18, 1),
+        body: ListView(
+          children: [
+            HeatmapHabits(
+              dataset: db.heatMapDataSet,
+              startDate: _myBox.get('START_DATE'),
+              onDateSelected: onCalendarDateSelected,
+              selectedCalendarDate: _selectedCalendarDate,
+            ),
+            ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: db.todaysHabitsList.length,
+                itemBuilder: (context, index) {
+                  return HabitTile(
+                    name: db.todaysHabitsList[index][0],
+                    isCompleted: db.todaysHabitsList[index][1],
+                    onChange: (value) {
+                      if (isFutureOrTodaySelected) {
+                        checkBoxToggle(value, index);
+                      }
+                    },
+                    settingClick: (context) {
+                      if (isFutureOrTodaySelected) {
+                        habitSetting(index);
+                      }
+                    },
+                    deleteClick: (context) {
+                      if (isFutureOrTodaySelected) {
+                        habitDelete(index);
+                      }
+                    },
+                  );
+                }),
+          ],
         ),
-        child: const Icon(Icons.add, color: Colors.white),
+        floatingActionButton: FloatingActionButton(
+          onPressed: isFutureOrTodaySelected ? createNewHabit : null,
+          backgroundColor: isFutureOrTodaySelected ? const Color.fromARGB(255, 2, 179, 8) : Colors.grey[700],
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(100),
+          ),
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
       ),
     );
   }

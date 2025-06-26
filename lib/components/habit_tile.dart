@@ -9,6 +9,7 @@ class HabitTile extends StatelessWidget {
     required this.onChange,
     required this.settingClick,
     required this.deleteClick,
+    this.isInteractionDisabled = false,
   });
 
   final String name;
@@ -16,6 +17,7 @@ class HabitTile extends StatelessWidget {
   final Function(bool?)? onChange;
   final Function(BuildContext)? settingClick;
   final Function(BuildContext)? deleteClick;
+  final bool isInteractionDisabled;
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,9 @@ class HabitTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 18),
       child: Slidable(
         useTextDirection: true,
-        endActionPane: ActionPane(motion: const StretchMotion(), children: [
+        endActionPane: isInteractionDisabled
+            ? null
+            : ActionPane(motion: const StretchMotion(), children: [
           SlidableAction(
             foregroundColor: Colors.white,
             onPressed: settingClick,
@@ -47,9 +51,12 @@ class HabitTile extends StatelessWidget {
                 value: isCompleted,
                 onChanged: onChange,
                 activeColor: const Color.fromARGB(255, 2, 179, 8),
-                fillColor: WidgetStateProperty .resolveWith<Color>((states) {
+                fillColor: WidgetStateProperty.resolveWith<Color>((states) {
                   if (states.contains(WidgetState.selected)) {
                     return const Color.fromARGB(255, 2, 179, 8);
+                  }
+                  if (isInteractionDisabled) {
+                    return Colors.grey.shade700;
                   }
                   return Colors.white;
                 }),
@@ -57,7 +64,12 @@ class HabitTile extends StatelessWidget {
               ),
               Text(
                 name,
-                style: const TextStyle(color: Colors.white, fontSize: 18),
+                style: TextStyle(
+                  color: isInteractionDisabled ? Colors.grey.shade500 : Colors.white,
+                  fontSize: 18,
+                  decoration: isCompleted && !isInteractionDisabled ? TextDecoration.lineThrough : TextDecoration.none,
+                  decorationColor: isCompleted && !isInteractionDisabled ? Colors.white : null,
+                ),
               ),
             ],
           ),
