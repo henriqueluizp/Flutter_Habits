@@ -1,16 +1,57 @@
-# habits
+# Flutter_Habits
 
-A new Flutter project.
+Flutter app to manage and track daily habits.
 
-## Getting Started
+## How to run
 
-This project is a starting point for a Flutter application.
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/henriqueluizp/Flutter_Habits.git
+   ```
 
-A few resources to get you started if this is your first Flutter project:
+2. Enter the project folder:
+   ```bash
+   cd Flutter_Habits
+   ```
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+3. Install the dependencies:
+   ```bash
+   flutter pub get
+   ```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+4. Run the app:
+   ```bash
+   flutter run
+   ```
+
+---
+
+Aplicativo Flutter para gerenciar e acompanhar hábitos diários.
+
+## Como rodar
+
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/henriqueluizp/Flutter_Habits.git
+   ```
+
+2. Entre na pasta do projeto:
+   ```bash
+   cd Flutter_Habits
+   ```
+
+3. Instale as dependências:
+   ```bash
+   flutter pub get
+   ```
+
+4. Rode o app:
+   ```bash
+   flutter run
+   ```
+
+----
+
+## License
+
+MIT License. See the LICENSE file for details.
